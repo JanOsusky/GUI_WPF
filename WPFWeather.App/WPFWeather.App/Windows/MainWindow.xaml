@@ -1,0 +1,81 @@
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="clr-namespace:WPFWeather.App.Converters"
+    xmlns:viewModels="clr-namespace:WPFWeather.App.ViewModels"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    x:Class="WPFWeather.App.Windows.MainWindow"
+    mc:Ignorable="d"
+    Title="WPF Weather Demo" Height="312" Width="500"
+    d:DataContext="{d:DesignInstance {x:Type viewModels:WeatherViewModel}}">
+
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray" />
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="Gray" />
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="Gray" />
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+        <Style TargetType="Window">
+            <Setter Property="Background" Value="#45b6fe" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" Source="{Binding Weather.Icon}" VerticalAlignment="Center" HorizontalAlignment="Center"></Image>
+        <ComboBox x:Name="CitySelectComboBox" Grid.Row="1" SelectedValuePath="Content" IsEditable="True" Width="150" Height="40">
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="Loaded">
+                    <b:InvokeCommandAction Command="{Binding DownloadWeatherCommand}"
+                                 CommandParameter="{Binding ElementName=CitySelectComboBox, Path=SelectedValue}" />
+                </b:EventTrigger>
+                <b:EventTrigger EventName="SelectionChanged">
+                    <b:InvokeCommandAction Command="{Binding DownloadWeatherCommand}"
+                                 CommandParameter="{Binding ElementName=CitySelectComboBox, Path=SelectedValue}" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+            <ComboBoxItem Content="Brno" IsSelected="True"/>
+            <ComboBoxItem Content="Praha" />
+            <ComboBoxItem Content="London" />
+
+        </ComboBox>
+        <TextBlock Grid.Row="2" Text="{Binding Weather.Temperature,StringFormat={}{0}°C}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        <Label Grid.Row="3" Content="{Binding Weather.Description}" VerticalAlignment="Center" HorizontalAlignment="Center"></Label>
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+        <Polygon Grid.Row="4" Grid.Column="0" Width="31" Height="31" Fill="Black"  VerticalAlignment="Center" HorizontalAlignment="Right" >
+            <Polygon.LayoutTransform>
+                <RotateTransform Angle="{Binding Weather.WindDirection}" />
+            </Polygon.LayoutTransform>
+            <Polygon.Points>
+                <Point X="15" Y="0" />
+                <Point X="10" Y="30" />
+                <Point X="20" Y="30" />
+            </Polygon.Points>
+        </Polygon>
+    
+            <TextBlock  Text="{Binding Weather.WindSpeed,StringFormat={}{0}m/s}" Grid.Row="4" Grid.Column="1"  VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <TextBlock  Text="LOADING!..." Grid.Row="4" Grid.Column="1"  VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{Binding DownloadingWeather, Converter={StaticResource boolToVisibilityConverter}, ConverterParameter=False}"/>
+        </Grid>
+
+    </Grid>
+
+</Window>
